@@ -18,6 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+import copy
 
 class SearchProblem:
     """
@@ -86,16 +87,43 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     fringe = util.Stack()
-    fringe.push(4)
-    fringe.pop
-    if fringe.isEmpty:
-        print "emptyyyyy"
+    fringe.push(problem.getStartState())
+
+    actions = util.Stack()
+    actions.push([])
+    traversed = []
+    while not fringe.isEmpty():
+        root = fringe.pop()
+        old_act = actions.pop()
+        for successor in problem.getSuccessors(root):
+            if successor[0] not in traversed:
+                traversed.append(successor[0])
+                actions.push(old_act + [successor[1]])
+                if problem.isGoalState(successor[0]): 
+                    return actions.pop()
+                else:
+                    fringe.push(successor[0])
     
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.Queue()
+    fringe.push(problem.getStartState())
+
+    actions = util.Queue()
+    actions.push([])
+    traversed = []
+    while not fringe.isEmpty():
+        root = fringe.pop()
+        old_act = actions.pop()
+        for successor in problem.getSuccessors(root):
+            if successor[0] not in traversed:
+                traversed.append(successor[0])
+                actions.push(old_act + [successor[1]])
+                if problem.isGoalState(successor[0]): 
+                    return actions.pop()
+                else:
+                    fringe.push(successor[0])
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
