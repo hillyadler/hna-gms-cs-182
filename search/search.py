@@ -121,7 +121,7 @@ def breadthFirstSearch(problem):
                 traversed.append(successor[0])
                 actions.push(old_act + [successor[1]])
                 if problem.isGoalState(successor[0]): 
-                    return actions.pop()
+                    return (old_act + [successor[1]])
                 else:
                     fringe.push(successor[0])
 
