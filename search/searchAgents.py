@@ -40,6 +40,7 @@ from game import Actions
 import util
 import time
 import search
+import copy
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
@@ -295,15 +296,13 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
         return (self.startingPosition, [0,0,0,0])
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        state[1] == [1,1,1,1] 
+        return state[1] == [1,1,1,1]
 
     def getSuccessors(self, state):
         """
@@ -315,33 +314,34 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-
+        x,y = state[0]
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            x,y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
             
             cost = 1
-            
+
+            new_vector = copy.deepcopy(state[1])
+
             if self.corners[0] == (nextx,nexty):
-                state[1][0] = 1
-                successors.append(( ((nextx,nexty), state[1]), action, cost))
+                new_vector[0] = 1
+                successors.append(( ((nextx,nexty), new_vector), action, cost))
             elif self.corners[1] == (nextx,nexty):
-                state[1][1] = 1
-                successors.append(( ((nextx,nexty), state[1]), action, cost))
+                new_vector[1] = 1
+                successors.append(( ((nextx,nexty), new_vector), action, cost))
             elif self.corners[2] == (nextx,nexty):
-                state[1][2] = 1
-                successors.append(( ((nextx,nexty), state[1]), action, cost))
+                new_vector[2] = 1
+                successors.append(( ((nextx,nexty), new_vector), action, cost))
             elif self.corners[3] == (nextx,nexty):
-                state[1][3] = 1
-                successors.append(( ((nextx,nexty), state[1]), action, cost))
+                new_vector[3] = 1
+                successors.append(( ((nextx,nexty), new_vector), action, cost))
             else:
                 if not hitsWall:
-                    successors.append(( ((nextx,nexty), state[1]), action, cost))
+                    successors.append(( ((nextx,nexty), new_vector), action, cost))
             
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -376,7 +376,14 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
+    distance = 0
+    vector = state[1]
+    if vector[0] == 1:
+
+
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+    
     return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
