@@ -378,7 +378,7 @@ def cornersHeuristic(state, problem):
 
     distance = 0
     vector = state[1]
-    if vector[0] == 1:
+
 
 
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
@@ -477,8 +477,7 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    return len(foodGrid.asList())
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"

@@ -91,7 +91,22 @@ def depthFirstSearch(problem):
 
     actions = util.Stack()
     actions.push([])
-    traversed = []
+    closed = []
+    while not fringe.isEmpty():
+        root = fringe.pop()
+        old_act = actions.pop()
+        if problem.isGoalState(root):
+            return old_act
+        if root not in closed:
+            closed.append(root)
+            for successor in problem.getSuccessors(root):
+                fringe.push(successor[0])
+                actions.push(old_act + [successor[1]])
+
+    """
+    actions = util.Stack()
+    actions.push([])
+    traversed = [problem.getStartState()]
     while not fringe.isEmpty():
         root = fringe.pop()
         old_act = actions.pop()
@@ -103,16 +118,36 @@ def depthFirstSearch(problem):
                     return actions.pop()
                 else:
                     fringe.push(successor[0])
+    """
     
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
+    
     fringe = util.Queue()
     fringe.push(problem.getStartState())
 
     actions = util.Queue()
     actions.push([])
-    traversed = []
+    closed = []
+    while not fringe.isEmpty():
+        root = fringe.pop()
+        old_act = actions.pop()
+        if problem.isGoalState(root):
+            return old_act
+        if root not in closed:
+            closed.append(root)
+            for successor in problem.getSuccessors(root):
+                fringe.push(successor[0])
+                actions.push(old_act + [successor[1]])
+
+    """
+    fringe = util.Queue()
+    fringe.push(problem.getStartState())
+
+    actions = util.Queue()
+    actions.push([])
+    traversed = [problem.getStartState()]
     while not fringe.isEmpty():
         root = fringe.pop()
         old_act = actions.pop()
@@ -124,15 +159,35 @@ def breadthFirstSearch(problem):
                     return (old_act + [successor[1]])
                 else:
                     fringe.push(successor[0])
+    """
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
+    
+    fringe = util.PriorityQueue()
+    fringe.push(problem.getStartState(), 0)
+
+    actions = util.PriorityQueue()
+    actions.push([], 0)
+    closed = []
+    while not fringe.isEmpty():
+        root = fringe.pop()
+        old_act = actions.pop()
+        if problem.isGoalState(root):
+            return old_act
+        if root not in closed:
+            closed.append(root)
+            for successor in problem.getSuccessors(root):
+                fringe.push(successor[0], successor[2])
+                actions.push((old_act + [successor[1]]), successor[2])
+
+    """
     fringe = util.PriorityQueue()
     fringe.push(problem.getStartState(),0)
 
     actions = util.PriorityQueue()
     actions.push([],0)
-    traversed = []
+    traversed = [problem.getStartState()]
     while not fringe.isEmpty():
         root = fringe.pop()
         old_act = actions.pop()
@@ -144,6 +199,7 @@ def uniformCostSearch(problem):
                     return (old_act + [successor[1]])
                 else:
                     fringe.push(successor[0],successor[2])
+        """
 
 def nullHeuristic(state, problem=None):
     """
@@ -159,7 +215,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     actions = util.PriorityQueue()
     actions.push([],0)
-    traversed = []
+    traversed = [problem.getStartState()]
     while not fringe.isEmpty():
         root = fringe.pop()
         old_act = actions.pop()
