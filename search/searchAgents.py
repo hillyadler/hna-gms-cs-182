@@ -525,6 +525,40 @@ def foodHeuristic(state, problem):
     """
 
     position, foodGrid = state
+    
+    temp = foodGrid.asList()
+    
+    max_dist = 0
+    pac_dist = 0
+    if len(temp) == 1:
+        return (abs(position[0] - temp[0][0]) + abs(position[1] - temp[0][1]))
+    for food_i in temp:
+        for food_j in temp:
+            dist = abs(food_i[0] - food_j[0]) + abs(food_i[1] - food_j[1])
+        if dist > max_dist:
+            max_dist = dist
+            pac_dist = min((abs(position[0] - food_i[0]) + abs(position[1] - food_i[1])),(abs(position[0] - food_j[0]) + abs(position[1] - food_j[1])))
+    return (max_dist + pac_dist)
+
+
+
+    """
+    save_i = (0,0)
+    save_j = (0,0)
+    for food_i in temp:
+        for food_j in temp:
+            distance = (abs(food_i[0]-food_j[0])+abs(food_i[1]-food_j[1]))
+            if distance > long_distance:
+                long_distance = distance
+                save_i = copy.deepcopy(food_i)
+                save_j = copy.deepcopy(food_j)
+    long_distance += min((abs(save_i[0]-position[0])+abs(save_i[1]-position[1])), (abs(save_j[0]-position[0])+abs(save_j[1]-position[1])))
+    print save_i
+    print save_j
+    return long_distance
+    """
+
+"""
     distance = 0
     total = 0
     max_distance = 0
@@ -539,6 +573,7 @@ def foodHeuristic(state, problem):
     '''
     min_distance = 100
     while foodGrid.asList():
+        min_distance = 100
         for food in foodGrid.asList():
             distance = abs(food[0]-position[0])+abs(food[1]-position[1])
             if distance < min_distance:
@@ -548,7 +583,7 @@ def foodHeuristic(state, problem):
         (foodGrid.asList()).remove(closest)
         position = closest
     return total
- 
+    """
 
 
 
