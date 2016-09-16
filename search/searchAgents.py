@@ -373,16 +373,63 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+    #corners = problem.corners # These are the corner coordinates
+    #walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    distance = 0
-    vector = state[1]
+    #all_corners = list(copy.deepcopy(problem.corners))
 
-
-
-    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
-
+    def find_farthest(location, corners):
+        smallest_dist = 0 
+        for corner in corners:
+            dist = abs(location[0] - corner[0]) + abs(location[1] - corner[1])
+            if dist > smallest_dist:
+                smallest_dist = dist
+        return smallest_dist
+        
+    to_visit = []    
+    for i in range(len(state[1])):
+        if state[1][i] == 0:
+            to_visit.append(corners[i])
+            
+    cost = find_farthest(state[0], to_visit)
+    return cost
+    '''
+    def find_farthest(location, corners):
+        smallest = 0
+        if not to_visit: return 0
+        smallest_dist = 0 #problem.walls.height + problem.walls.width
+        for i in range(len(corners)):
+            dist = abs(state[0][0] - corners[i][0]) + abs(state[0][1] - corners[i][1])
+            if dist > smallest_dist:
+                smallest = i
+                smallest_dist = dist
+        return smallest_dist
+        
+    to_visit = []    
+    for i in range(len(state[1])):
+        if state[1][i] == 0:
+            to_visit.append(corners[i])
+            
+    cost = find_farthest(state[0], to_visit)
+    return cost
+    
+    to_visit = []    
+    for i in range(len(state[1])):
+        if state[1][i] == 0:
+            to_visit.append(corners[i])
+            
+    def find_average(location, corners):
+        dist = 0
+        if not to_visit: return 0
+        for corner in corners:
+            dist = dist + abs(location[0] - corner[0]) + abs(location[1] - corner[1])
+        return dist/(len(corners)) 
+    
+    return find_average(state[0], to_visit) 
+    '''    
     
     return 0 # Default to trivial solution
 
@@ -478,14 +525,32 @@ def foodHeuristic(state, problem):
     """
 
     position, foodGrid = state
-    long_distance = 0
-    for food_i in foodGrid.asList():
-    	for food_j in foodGrid.asList():
-    		distance = (abs(food_i[0]-food_j[0])+abs(food_i[1]-food_j[1]))
-    	if distance > long_distance:
-    		long_distance = distance
-    print foodGrid.asList()
-    return long_distance
+    distance = 0
+    total = 0
+    max_distance = 0
+    '''
+    for food in foodGrid.asList():
+        distance = abs(food[0]-position[0])+abs(food[1]-position[1])
+        if distance > max_distance:
+            max_distance = distance
+    
+    return max_distance
+   #return 0
+    '''
+    min_distance = 100
+    while foodGrid.asList():
+        for food in foodGrid.asList():
+            distance = abs(food[0]-position[0])+abs(food[1]-position[1])
+            if distance < min_distance:
+                min_distance = distance
+                closest = food
+        total += min_distance
+        (foodGrid.asList()).remove(closest)
+        position = closest
+    return total
+ 
+
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -516,7 +581,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.uniformCostSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -552,7 +617,10 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if state in (self.food).asList():
+            return True
+        else:
+            return False
 
 def mazeDistance(point1, point2, gameState):
     """

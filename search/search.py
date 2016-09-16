@@ -166,7 +166,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     actions.push([], 0)
     costs = util.PriorityQueue()
     costs.push(0,0)
-    closed = sets.Set()
+    closed = [] #sets.Set()
     while not fringe.isEmpty():
         root = fringe.pop()
         old_act = actions.pop()
@@ -174,7 +174,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         if problem.isGoalState(root):
             return old_act
         if root not in closed:
-            closed.add(root)
+            closed.append(root) #closed.add(root)
             for successor in problem.getSuccessors(root):
                 fringe.push(successor[0], old_cost + successor[2]+(heuristic(successor[0],problem)))
                 actions.push((old_act + [successor[1]]), old_cost + successor[2]+(heuristic(successor[0],problem)))
