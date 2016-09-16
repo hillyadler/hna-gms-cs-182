@@ -176,30 +176,11 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         if root not in closed:
             closed.add(root)
             for successor in problem.getSuccessors(root):
-                fringe.push(successor[0], old_cost + (heuristic(successor[0],problem)))
-                actions.push((old_act + [successor[1]]), old_cost + (heuristic(successor[0],problem)))
-                costs.push(old_cost + successor[2], old_cost+(heuristic(successor[0],problem)))
+                fringe.push(successor[0], old_cost + successor[2]+(heuristic(successor[0],problem)))
+                actions.push((old_act + [successor[1]]), old_cost + successor[2]+(heuristic(successor[0],problem)))
+                costs.push(old_cost + successor[2], old_cost+successor[2]+(heuristic(successor[0],problem)))
 
 
-                """
-    fringe = util.PriorityQueue()
-    fringe.push(problem.getStartState(),0)
-
-    actions = util.PriorityQueue()
-    actions.push([],0)
-    traversed = [problem.getStartState()]
-    while not fringe.isEmpty():
-        root = fringe.pop()
-        old_act = actions.pop()
-        for successor in problem.getSuccessors(root):
-            if successor[0] not in traversed:
-                traversed.append(successor[0])
-                actions.push((old_act + [successor[1]]),heuristic(successor[0],problem))
-                if problem.isGoalState(successor[0]): 
-                    return (old_act + [successor[1]])
-                else:
-                    fringe.push(successor[0],heuristic(successor[0],problem))
-"""
 
 # Abbreviations
 bfs = breadthFirstSearch
