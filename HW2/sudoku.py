@@ -4,6 +4,8 @@ import sys, os
 import random 
 import argparse
 
+from sets import Set
+
 BOX = 1
 ROW = 2
 COL = 3
@@ -81,21 +83,32 @@ class Sudoku:
         Returns the first variable with assignment epsilon
         i.e. first square in the board that is unassigned.
         """
-        raise NotImplementedError()
+        for row in range(9):
+            for col in range(9):
+                if self.board[row][col] == 0:
+                    return (row,col)
+        return None
 
     def complete(self):
         """
         IMPLEMENT FOR PART 1
         Returns true if the assignment is complete. 
         """
-        raise NotImplementedError()
+        return (self.firstEpsilonVariable() is None)
 
     def variableDomain(self, r, c):
         """
         IMPLEMENT FOR PART 1
         Returns current domain for the (row, col) variable .
         """
-        raise NotImplementedError()
+        dom = Set([1,2,3,4,5,6,7,8,9])
+        for num in self.col(c):
+            dom.discard(num)
+        for num in self.row(r):
+            dom.discard(num)
+        for num in self.box(self.box_id(r, c)):
+            dom.discard(num)
+        return dom
 
     # PART 2
     def updateFactor(self, factor_type, i):
