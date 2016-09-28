@@ -142,7 +142,7 @@ class Sudoku:
         Update the values remaining for all factors.
         There is one factor for each row, column, and box.
         """
-        for i in range(3):
+        for i in range(1,4):
             for j in range(9):
                 self.updateFactor(i,j)
 
@@ -175,7 +175,7 @@ class Sudoku:
         """
         successors = []
         r, c = self.nextVariable()
-        for i in range(9):
+        for i in range(1,10):
             new = self.setVariable(r, c, i)
             new.updateAllFactors()
             conflicts = 0
