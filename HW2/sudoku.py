@@ -134,7 +134,8 @@ class Sudoku:
         
         # update both dictionaries
         self.factorRemaining[((factor_type),i)] = values
-        self.factorNumConflicts[((factor_type),i)] = violations
+        if violations != 0:
+            self.factorNumConflicts[((factor_type),i)] = violations
         
     def updateAllFactors(self):
         """
@@ -173,7 +174,14 @@ class Sudoku:
         Returns new assignments with each possible value 
         assigned to the variable returned by `nextVariable`.
         """
-        raise NotImplementedError()
+        successors = []
+        r, c = self.nextVariable()
+        for i in range(9):
+            new = self.setVariable(r, c, i)
+            self.updateVariableFactors((r,c))
+            if not self.factorNumConflicts:
+                successors.append(new)
+        return successors
 
     def getAllSuccessors(self):
         if not args.forward: 
