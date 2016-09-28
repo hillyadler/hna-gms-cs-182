@@ -118,14 +118,23 @@ class Sudoku:
         `factor_type` is one of BOX, ROW, COL 
         `i` is an index between 0 and 8.
         """
-        raise NotImplementedError()
-        # values = []
-        # if factor_type == BOX:
-            
-        # if factor_type == ROW:
-            
-        # if factor_type == COL:
-            
+        
+        values = [1,2,3,4,5,6,7,8,9]
+        nums = []
+        if factor_type == BOX:
+            for num in self.box(i):
+                nums.append(num)
+        if factor_type == ROW:
+            for num in self.row(i):
+                nums.append(num)
+        if factor_type == COL:
+            for num in self.col(i):
+                nums.append(num)
+        violations = crossOff(values,nums)
+        
+        # update both dictionaries
+        self.factorRemaining[((factor_type),i)] = values
+        self.factorNumConflicts[((factor_type),i)] = violations
         
     def updateAllFactors(self):
         """
@@ -133,14 +142,19 @@ class Sudoku:
         Update the values remaining for all factors.
         There is one factor for each row, column, and box.
         """
-        raise NotImplementedError()
+        for i in range(3):
+            for j in range(9):
+                self.updateFactor(i,j)
 
     def updateVariableFactors(self, variable):
         """
         IMPLEMENT FOR PART 2
         Update all the factors impacting a variable (neighbors in factor graph).
         """
-        raise NotImplementedError()
+        r, c = variable
+        self.updateFactor(ROW, r)
+        self.updateFactor(COL, c)
+        self.updateFactor(BOX, self.box_id(r,c))
 
     # CSP SEARCH CODE
     def nextVariable(self):
