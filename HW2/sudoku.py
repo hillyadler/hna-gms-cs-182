@@ -133,9 +133,8 @@ class Sudoku:
         violations = crossOff(values,nums)
         
         # update both dictionaries
-        self.factorRemaining[((factor_type),i)] = values
-        if violations != 0:
-            self.factorNumConflicts[((factor_type),i)] = violations
+        self.factorRemaining[(factor_type,i)] = values
+        self.factorNumConflicts[(factor_type,i)] = violations
         
     def updateAllFactors(self):
         """
@@ -178,8 +177,11 @@ class Sudoku:
         r, c = self.nextVariable()
         for i in range(9):
             new = self.setVariable(r, c, i)
-            self.updateVariableFactors((r,c))
-            if not self.factorNumConflicts:
+            new.updateAllFactors()
+            conflicts = 0
+            for key, value in new.factorNumConflicts.iteritems():
+                conflicts += value
+            if conflicts == 0:
                 successors.append(new)
         return successors
 
