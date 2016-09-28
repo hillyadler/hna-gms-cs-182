@@ -202,8 +202,9 @@ class Sudoku:
         """
         for r in range(9):
             for c in range(9):
-                if self.variableDomain(r,c):
-                    return False
+                if self.board[r][c] == 0:
+                    if not self.variableDomain(r,c):
+                        return False
         return True
 
     # LOCAL SEARCH CODE
