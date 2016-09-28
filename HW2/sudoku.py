@@ -200,7 +200,11 @@ class Sudoku:
         IMPLEMENT IN PART 4
         Returns true if all variables have non-empty domains.
         """
-        raise NotImplementedError()
+        for r in range(9):
+            for c in range(9):
+                if self.variableDomain(r,c):
+                    return False
+        return True
 
     # LOCAL SEARCH CODE
     # Fixed variables cannot be changed by the player.
@@ -386,7 +390,6 @@ class Sudoku:
         cols = {}
         self.updateAllFactors()
             
-        out += OKGREEN
         for i in range(10):
             for j in range(9):
                 cols = self.factorRemaining[COL, j]
