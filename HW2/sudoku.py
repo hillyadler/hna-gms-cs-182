@@ -285,8 +285,13 @@ class Sudoku:
         IMPLEMENT FOR PART 7
         Decide if we should swap the values of variable1 and variable2.
         """
-        raise NotImplementedError()
-
+        test = deepcopy(self)
+        test.modifySwap(variable1,variable2)
+        test.updateAllFactors()
+        if (sum((test.factorNumConflicts).values()) < sum((self.factorNumConflicts).values())) or (random.random() < .001):
+            self.modifySwap(variable1, variable2)
+        self.updateAllFactors()
+        print sum((self.factorNumConflicts).values())
         
     ### IGNORE - PRINTING CODE
         
