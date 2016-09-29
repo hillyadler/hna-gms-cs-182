@@ -249,8 +249,15 @@ class Sudoku:
         with all the row factors being held consistent. 
         Should call `updateAllFactors` at end.
         """
-        raise NotImplementedError()
-        # self.updateAllFactors()
+        while not self.complete():
+            values = [1,2,3,4,5,6,7,8,9]
+            r,c = self.firstEpsilonVariable()
+            for val in self.row(r):
+                if val in values:
+                    values.remove(val)
+            self.board[r][c] = values[0]
+            self.updateAllFactors()
+        return self
     
     # PART 6
     def randomSwap(self):
