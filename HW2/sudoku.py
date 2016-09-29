@@ -42,6 +42,9 @@ class Sudoku:
         if isFirstLocal:
             self._initLocalSearch()
 
+        # changing your jank code
+        self.fixedVariables = {}
+
     # BASE SUDOKU CODE
     def row(self, row):
         "The variable assignments for a row factor."
@@ -266,7 +269,14 @@ class Sudoku:
         Returns two random variables that can be swapped without
         causing a row factor conflict.
         """
-        raise NotImplementedError()
+        r = random.randint(0,8)
+        values = [0,1,2,3,4,5,6,7,8]
+        for c in range(9):
+            if (r,c) in self.fixedVariables:
+                if c in values:
+                    values.remove(c)
+        swapees = [random.choice(values),random.choice(values)]
+        return ((r,swapees[0]),(r,swapees[1]))
       
 
     # PART 7
