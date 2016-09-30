@@ -1,3 +1,7 @@
+# Hilly Adler
+# Geoff Stevens
+# CS182 Assignment 2
+
 # multiAgents.py
 # --------------
 # Licensing Information:  You are free to use or extend these projects for

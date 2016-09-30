@@ -1,3 +1,7 @@
+# Hilly Adler
+# Geoff Stevens
+# CS182 Assignment 2
+
 from copy import deepcopy
 import timeit
 import sys, os
@@ -42,7 +46,6 @@ class Sudoku:
         if isFirstLocal:
             self._initLocalSearch()
 
-        # changing your jank code
         self.fixedVariables = {}
 
     # BASE SUDOKU CODE
