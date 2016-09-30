@@ -129,36 +129,46 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         
+        # starts the decision process from the top node
         def MINIMAX_DECISION(state,d):
             actions = []; vmax = float('-inf'); amax = Directions.STOP
             for action in state.getLegalActions(0):
                 actions.append((action, MIN_VALUE(state.generateSuccessor(0,action),d,1,state.getNumAgents() )))
+            # find the max action for the top node
             for item in actions:
                 if item[1] >= vmax:
                     vmax = item[1]
                     amax = item[0]
             return amax
-            
+        
+        # finds the max value, where d is depth remaining and agents is total ghosts + pacman
         def MAX_VALUE(state, d, agents):
+            # see if the depth is 0 or if its game over and return evaluation
             if d == 0 or state.isWin() or state.isLose():
                 return self.evaluationFunction(state)
             v = float('-inf')
+            # find the max for possible actions
             for action in state.getLegalActions(0):
                 v = max(v, MIN_VALUE(state.generateSuccessor(0, action), d, 1, agents))
             return v
-            
+        
+        # finds the min value, where d is depth remaining, index is ghost we are on, and agents is total ghosts + pacman
         def MIN_VALUE(state, d, index, agents):   
             v = float('inf')
+            # see if its game over and return evaluation
             if state.isWin() or state.isLose():
                 return self.evaluationFunction(state)
+            # if on the last ghost, find the min and move back to max value    
             if index + 1 == agents:
                 for action in state.getLegalActions(index):
                     v = min(v, MAX_VALUE(state.generateSuccessor(index, action), d-1, agents))
+            # if still iterating over ghosts, continue to find the min values
             else:
                 for action in state.getLegalActions(index):
                     v = min(v, MIN_VALUE(state.generateSuccessor(index, action), d, index+1, agents))
             return v
-            
+        
+        # start the minimax process
         return MINIMAX_DECISION(gameState,self.depth)
         
 
@@ -226,6 +236,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
+        
+        # starts the decision process from the top node
         def EXPECTIMAX_DECISION(state,d):
             actions = []; vmax = float('-inf'); amax = Directions.STOP
             for action in state.getLegalActions(0):
@@ -235,7 +247,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                     vmax = item[1]
                     amax = item[0]
             return amax
-            
+        
+        # finds the max value
         def MAX_VALUE(state, d, agents):
             if d == 0 or state.isWin() or state.isLose():
                 return self.evaluationFunction(state)
@@ -243,13 +256,15 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             for action in state.getLegalActions(0):
                 v = max(v, EXP_VALUE(state.generateSuccessor(0, action), d, 1, agents))
             return v
-            
+        
+        # finds the expected value
         def EXP_VALUE(state, d, index, agents):   
             if d == 0 or state.isWin() or state.isLose():
                 return self.evaluationFunction(state)
             v = 0
             all_actions = state.getLegalActions(index)
             p = 1./len(all_actions)
+            # return the average value by doing probability * value
             for action in all_actions:
                 if index + 1 == agents:
                     v = v + p * MAX_VALUE(state.generateSuccessor(index, action), d-1, agents)

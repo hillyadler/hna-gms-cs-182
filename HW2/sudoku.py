@@ -86,6 +86,8 @@ class Sudoku:
         Returns the first variable with assignment epsilon
         i.e. first square in the board that is unassigned.
         """
+        
+        # iterate over each row, then each row entry, returning first empty cell
         for row in range(9):
             for col in range(9):
                 if self.board[row][col] == 0:
@@ -97,6 +99,8 @@ class Sudoku:
         IMPLEMENT FOR PART 1
         Returns true if the assignment is complete. 
         """
+        
+        # return true if no empty cells, false if there is an empty cell
         return (self.firstEpsilonVariable() is None)
 
     def variableDomain(self, r, c):
@@ -104,7 +108,11 @@ class Sudoku:
         IMPLEMENT FOR PART 1
         Returns current domain for the (row, col) variable .
         """
+        
+        # potential domain values
         dom = Set([1,2,3,4,5,6,7,8,9])
+        
+        # if a value is already in a column, row, or box, remove from domain
         for num in self.col(c):
             dom.discard(num)
         for num in self.row(r):
@@ -133,9 +141,11 @@ class Sudoku:
         if factor_type == COL:
             for num in self.col(i):
                 nums.append(num)
+                
+        # calculate the number of violations in row, column, or box
         violations = crossOff(values,nums)
         
-        # update both dictionaries
+        # update both dictionaries, one that holds factors remaining and one that has the number of conflicts
         self.factorRemaining[(factor_type,i)] = values
         self.factorNumConflicts[(factor_type,i)] = violations
         
@@ -145,6 +155,8 @@ class Sudoku:
         Update the values remaining for all factors.
         There is one factor for each row, column, and box.
         """
+        
+        # iterate over row, col, and box type to update all factors
         for i in range(1,4):
             for j in range(9):
                 self.updateFactor(i,j)
@@ -178,12 +190,16 @@ class Sudoku:
         """
         successors = []
         r, c = self.nextVariable()
+        
+        # iterate over possible values that variable can be changed to
         for i in range(1,10):
             new = self.setVariable(r, c, i)
             new.updateAllFactors()
             conflicts = 0
+            # count the number of conflicts created by making change
             for key, value in new.factorNumConflicts.iteritems():
                 conflicts += value
+            # if there are no conflicts, add to a list of successors
             if conflicts == 0:
                 successors.append(new)
         return successors
@@ -203,6 +219,8 @@ class Sudoku:
         IMPLEMENT IN PART 4
         Returns true if all variables have non-empty domains.
         """
+        
+        # if the cell is unassigned and has an empty domain, return false
         for r in range(9):
             for c in range(9):
                 if self.board[r][c] == 0:
@@ -255,10 +273,13 @@ class Sudoku:
         while not self.complete():
             values = [1,2,3,4,5,6,7,8,9]
             r,c = self.firstEpsilonVariable()
+            # if a value is in the row, remove it from the possible values
             for val in self.row(r):
                 if val in values:
                     values.remove(val)
-            self.board[r][c] = values[0]
+            l = len(values)
+            # randomly select a value from the list of possible values and update
+            self.board[r][c] = values[random.randint(0,l-1)]
             self.updateAllFactors()
         return self
     
@@ -269,12 +290,15 @@ class Sudoku:
         Returns two random variables that can be swapped without
         causing a row factor conflict.
         """
+        # select a random row
         r = random.randint(0,8)
         values = [0,1,2,3,4,5,6,7,8]
+        # find a potential cell to swap with
         for c in range(9):
             if (r,c) in self.fixedVariables:
                 if c in values:
                     values.remove(c)
+        # select two cells to swap randomly
         swapees = [random.choice(values),random.choice(values)]
         return ((r,swapees[0]),(r,swapees[1]))
       
@@ -285,9 +309,12 @@ class Sudoku:
         IMPLEMENT FOR PART 7
         Decide if we should swap the values of variable1 and variable2.
         """
+        # copy the board and perform the swap
         test = deepcopy(self)
         test.modifySwap(variable1,variable2)
         test.updateAllFactors()
+        
+        # check the swap to see if there are fewer conflicts or 1/1000 chance, and if so keep swap
         if (sum((test.factorNumConflicts).values()) < sum((self.factorNumConflicts).values())) or (random.random() < .001):
             self.modifySwap(variable1, variable2)
         self.updateAllFactors()
