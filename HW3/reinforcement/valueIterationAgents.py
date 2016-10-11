@@ -12,7 +12,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-import mdp, util
+import mdp, util, copy
 
 from learningAgents import ValueEstimationAgent
 
@@ -44,8 +44,25 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.values = util.Counter() # A Counter is a dict with default 0
 
         # Write value iteration code here
-        "*** YOUR CODE HERE ***"
-
+        
+        for i in range(self.iterations):
+            temp = copy.deepcopy(self.values)
+            for state in mdp.getStates():
+              if mdp.isTerminal(state):
+                  self.values[state] = 0
+              else:
+                  bestaction = (None, float('-inf'))
+                  for action in mdp.getPossibleActions(state):
+                      pairs = mdp.getTransitionStatesAndProbs(state,action)
+                      average = 0
+                      for (nextState, prob) in pairs: 
+                          average = average + prob * (mdp.getReward(state, action, nextState) + (self.discount)*self.values[nextState])
+                      if average > bestaction[1]:
+                          bestaction = (action, average)
+                  
+                  temp[state] = bestaction[1]
+          
+            self.values = copy.deepcopy(temp)
 
     def getValue(self, state):
         """
@@ -59,8 +76,11 @@ class ValueIterationAgent(ValueEstimationAgent):
           Compute the Q-value of action in state from the
           value function stored in self.values.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        pairs = self.mdp.getTransitionStatesAndProbs(state,action)
+        average = 0
+        for (nextState, prob) in pairs:
+                average = average + prob * (self.mdp.getReward(state, action, nextState) + (self.discount)*self.values[nextState])
+        return average
 
     def computeActionFromValues(self, state):
         """
@@ -71,8 +91,15 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        bestaction = (None, float('-inf'))
+        for action in self.mdp.getPossibleActions(state):
+            value = self.computeQValueFromValues(state, action)
+            if value > bestaction[1]:
+                bestaction = (action, value)
+                
+        return bestaction[0]
+            
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
