@@ -1,4 +1,5 @@
 import numpy as np
+import copy, random
 import matplotlib.pyplot as plt
 
 #number of items
@@ -28,7 +29,36 @@ v = np.array([25, 27, 15, 25, 13, 15, 18, 24, 25, 30, 12, 18, 28, 30, 20, 26, 24
 def simulated_annealing():
     # YOUR CODE HERE
     # return a trace of values resulting from your simulated annealing
-    return np.random.random_integers(200,300, 10)
+    
+    def weight(bag):
+        weight = 0
+        for index in bag:
+            weight = weight + w[index]
+        return weight
+        
+    def value(bag):
+        value = 0
+        for index in bag:
+            value = value + v[index]
+        return value
+    
+    vals = []
+    for i in range(10):
+        bag = w.argsort()[:10].tolist()
+        for j in range(5000):            
+            remove = np.random.choice(bag)
+            append = np.random.choice([d for d in range(N) if d not in bag])
+            new_bag = copy.deepcopy(bag)
+            new_bag.remove(remove)
+            new_bag.append(append)
+            
+            if weight(new_bag) <= W:
+                if (value(new_bag) >= value(bag)) or (random.random < .01/(j+1) + .01/(value(bag) - value(new_bag) + 0.001)):
+                    bag = copy.deepcopy(new_bag)
+        print(weight(bag))    
+        vals.append(value(bag))
+            
+    return vals
 
 if __name__ == "__main__":
     # Greedy result is maximize v/w
