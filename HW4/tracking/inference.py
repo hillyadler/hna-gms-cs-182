@@ -266,7 +266,16 @@ class ParticleFilter(InferenceModule):
         weight with each position) is incorrect and may produce errors.
         """
         "*** YOUR CODE HERE ***"
-
+        
+        per_space = int(self.numParticles / len(self.legalPositions))
+        
+        particles = []
+        for position in self.legalPositions:
+            for i in range(per_space):
+                particles.append(position)
+        
+        self.particles = particles
+            
     def observe(self, observation, gameState):
         """
         Update beliefs based on the given distance observation. Make sure to
@@ -298,8 +307,28 @@ class ParticleFilter(InferenceModule):
         emissionModel = busters.getObservationDistribution(noisyDistance)
         pacmanPosition = gameState.getPacmanPosition()
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        
+        new_particles = []
+        if noisyDistance == None:
+            for particle in self.particles:
+                new_particles.append(self.getJailPosition())
+            self.particles = new_particles
+        else:
+            # weight the particles
+            weighted_particles = util.Counter()
+            for particle in self.particles:
+                trueDistance = util.manhattanDistance(particle, pacmanPosition)
+                weighted_particles[particle] += emissionModel[trueDistance]     
+                
+            if weighted_particles.totalCount() == 0:
+                self.initializeUniformly(gameState)
+            else:
+                items = sorted(weighted_particles.items())
+                distribution = [i[1] for i in items]
+                values = [i[0] for i in items]
+                new_particles = util.nSample(distribution, values, self.numParticles)
+                self.particles = new_particles         
+            
     def elapseTime(self, gameState):
         """
         Update beliefs for a time step elapsing.
@@ -315,6 +344,11 @@ class ParticleFilter(InferenceModule):
         a belief distribution.
         """
         "*** YOUR CODE HERE ***"
+        
+        noisyDistance = observation
+        emissionModel = busters.getObservationDistribution(noisyDistance)
+        pacmanPosition = gameState.getPacmanPosition()
+        
         util.raiseNotDefined()
 
     def getBeliefDistribution(self):
@@ -325,7 +359,14 @@ class ParticleFilter(InferenceModule):
         Counter object)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        beliefs = util.Counter()
+        for p in self.legalPositions: beliefs[p] = 0.
+            
+        for particle in self.particles:
+            beliefs[particle] += 1. / self.numParticles
+            
+        return beliefs     
+        
 
 class MarginalInference(InferenceModule):
     """
