@@ -345,11 +345,12 @@ class ParticleFilter(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         
-        noisyDistance = observation
-        emissionModel = busters.getObservationDistribution(noisyDistance)
-        pacmanPosition = gameState.getPacmanPosition()
+        new_particles = []
+        for oldPos in self.particles:
+            newPosDist = self.getPositionDistribution(self.setGhostPosition(gameState, oldPos))
+            new_particles.append(util.sample(newPosDist))
         
-        util.raiseNotDefined()
+        self.particles = new_particles
 
     def getBeliefDistribution(self):
         """
