@@ -15,7 +15,7 @@ class TextClassifier:
         """
         Return your full name as it appears in the class roster
         """
-        return "Scott Kuindersma"
+        return ["Geoffrey Stevens", "Hilly Adler"]
 
     def q1(self):
         """
@@ -25,7 +25,7 @@ class TextClassifier:
         Given only this information, what are the most likely
         probabilities of rolling each side? (Hardcoding is fine)
         """
-        return [0.1, 0.8, 0.2, 0.0]
+        return [0.4, 0.2, 0.1, 0.3]
 
     def q2(self):
         """
@@ -39,7 +39,7 @@ class TextClassifier:
         Using the same observations as in q1 and a prior with a per-side
         "strength" of 2, what are the probabilities of rolling each side??
         """
-        return [0.1, 0.8, 0.2, 0.0]
+        return [10./28., 6./28., 4./28., 8./28.]
 
     def q3(self, counts=[1,1,3,8]):
         """
@@ -59,7 +59,8 @@ class TextClassifier:
         5 times, once for each rating. We pass in the number of times each
         word shows up in any review corresponding to the current rating.
         """
-        return [0.1, 0.8, 0.2, 0.0]
+
+        return [float(x) / sum(counts) for x in counts]
 
     def q4(self, infile):
         """
@@ -81,9 +82,29 @@ class TextClassifier:
         reviews corresponding to ranking
         nrated[ranking] is the total number of reviews with each ranking
         """
-        self.dict = {"compsci": 0, "182": 1, ".": 2}
-        self.counts = [[0,0,0],[0,0,0],[1,1,1],[0,0,0],[0,0,0]]
-        self.nrated = [0,0,1,0,0]
+
+        fopen = open(infile, 'r')
+        d ={}
+        counts = [[], [], [], [], []]
+        nrated = [0, 0, 0, 0, 0]
+
+        key = 0
+        for line in fopen:
+            words = line.split()
+            ranking = int(words.pop(0))
+            for word in words:
+                if word not in d:
+                    d[word] = key
+                    key = key + 1
+                    for r in range(5):
+                        counts[r].append(0)
+
+                counts[ranking][d[word]] += 1
+            nrated[ranking] += 1
+
+        self.dict = d
+        self.counts = counts
+        self.nrated = nrated
 
     def q5(self, alpha=1):
         """
@@ -93,7 +114,17 @@ class TextClassifier:
         Alpha is the per-word "strength" of the prior (as in q3).
         (What might "fairness" mean here?)
         """
-        self.F = [[0,0,0], [0,0,0], [1,8,2], [0,0,0], [0,0,0]]
+
+        f = []
+        total_words = 0
+        for rating in range(5):
+            total_words = float(sum(self.counts[rating]))
+            unique = float(len(self.counts[rating]))
+            f.append( [0 for x in range(len(self.dict))] )
+            for key, value in self.dict.iteritems():
+                f[rating][value] = -log( (self.counts[rating][value] + alpha) / (total_words + alpha*unique) )
+
+        self.F = f
 
     def q6(self, infile):
         """
@@ -102,7 +133,30 @@ class TextClassifier:
         Are there any factors that won't affect your prediction?
         You'll report both the list of predicted ratings in order and the accuracy.
         """
-        return ([2], 0.000000000000182)
+
+        fopen = open(infile, 'r')
+
+        predictions = []
+        correct = 0
+
+        for line in fopen:
+            words = line.split()
+            true_rank = int(words.pop(0))
+            max_prob = float('inf')
+            for rank in range(5):
+                prob = -log(float(self.nrated[rank]) / sum(self.nrated))
+                for word in words:
+                    if word in self.dict:
+                        prob += self.F[rank][self.dict[word]]
+                if prob < max_prob:
+                    predicted_rank = rank
+                    max_prob = prob
+            if predicted_rank == true_rank:
+                correct += 1
+
+            predictions.append(predicted_rank)
+
+        return (predictions, float(correct) / len(predictions) )
 
     def q7(self, infile):
         """
@@ -116,7 +170,23 @@ class TextClassifier:
         Find and return a good value of alpha (hint: you will want to call q5 and q6).
         What happens when alpha = 0?
         """
-        return 0
+
+        best_alpha = 2;
+        self.q5(best_alpha)
+        predictions, best_accuracy = self.q6(infile)
+
+        for alpha in range(3,11):
+            # fit the model
+            self.q5(alpha)
+
+            # test the alpha
+            predictions, accuracy = self.q6(infile)
+
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_alpha = alpha
+
+        return best_alpha
 
     def q8(self):
         """
@@ -128,7 +198,59 @@ class TextClassifier:
         You'll return the strings rather than the indices, and in decreasing order of
         representativeness.
         """
-        return [["182", "compsci", "."] for _ in range(5)]
+        '''
+            reps = ['X','X','X']
+            difs = [float('-inf'),float('-inf'),float('-inf')]
+            # update lists
+            for k in range(3):
+                if min_dif > difs[k]:
+                    del reps[difs.index(min(difs))]
+                    difs.remove(min(difs))
+                    difs.append(min_dif)
+                    reps.append(m)
+                    break
+
+        all_reps.append(reps)
+        '''
+
+        marginals = []
+        # iterate over ratings
+        for i in range(5):
+            # list of minimums
+            minimums = []
+            for m in range(len(self.F[i])):
+                min_dif = float('inf')
+                other_ratings = range(5); other_ratings.remove(i)
+                for j in other_ratings:
+                    dif = self.F[j][m] - self.F[i][m]
+                    if dif <= min_dif:
+                        min_dif = dif
+                minimums.append(min_dif)
+            marginals.append(minimums)
+
+        reps = []
+        for i in range(5):
+            first = marginals[i].index(max(marginals[i]))
+            marginals[i][first] = float('-inf')
+            second = marginals[i].index(max(marginals[i]))
+            marginals[i][second] = float('-inf')
+            third = marginals[i].index(max(marginals[i]))
+            marginals[i][third] = float('-inf')
+            reps.append([first, second, third])
+
+
+        final_reps = []
+        for x in reps:
+            words = []
+            for word in x:
+                for key, value in self.dict.iteritems():
+                    if word == value:
+                        words.append(key)
+            final_reps.append(words)
+
+        print(final_reps)
+        return final_reps
+        #return [["182", "compsci", "."] for _ in range(5)]
 
     """
     You did it! If you're curious, the dataset came from (Socher 2013), which describes
